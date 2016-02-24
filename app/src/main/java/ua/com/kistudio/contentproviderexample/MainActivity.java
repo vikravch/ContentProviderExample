@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.LoaderManager;
+import android.content.Loader;
+import android.content.CursorLoader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,7 +15,9 @@ import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+
+    CursorLoader cursorLoader;
 
     public static final String LOG_TAG ="ContentLog";
     @Override
@@ -22,6 +27,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ((Button) findViewById(R.id.btnInsert)).setOnClickListener(this);
         ((Button) findViewById(R.id.btnQuery)).setOnClickListener(this);
         ((Button) findViewById(R.id.btnQueryList)).setOnClickListener(this);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getLoaderManager().initLoader(1,null,this);
     }
 
     @Override
@@ -57,5 +69,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            cursorLoader = new CursorLoader(this,MyContentProvider.CONTACT_CONTENT_URI,null,null,null,null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(this,android.R.layout.simple_list_item_2,data,
+                new String[]{"login","password"},new int[]{android.R.id.text1,android.R.id.text2}, Adapter.NO_SELECTION);
+        ((ListView) findViewById(R.id.lvOut)).setAdapter(cursorAdapter);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
